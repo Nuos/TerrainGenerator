@@ -27,5 +27,5 @@ void main() {
                     (dot(f_norm, vec3(0, 1, 0)) - 0.85) / (1 - 0.85));
     }
 
-    color = vec4(f_norm, color.y);
+    //color = vec4(f_norm, color.y);
 }

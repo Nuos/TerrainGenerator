@@ -1,6 +1,18 @@
-﻿Build started 1/23/2015 2:32:55 AM.
+﻿Build started 1/26/2015 8:02:15 PM.
      1>Project "C:\Users\Sharanskumar\documents\visual studio 2013\Projects\TerrainGenerator\TerrainGenerator\TerrainGenerator.vcxproj" on node 2 (Build target(s)).
-     1>Link:
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /openmp /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Globals.cpp KeyHandler.cpp LandscapeManager.cpp Main.cpp MouseHandler.cpp ObjectTest.cpp ROAMTerrain.cpp Renderer.cpp
+         Globals.cpp
+         Generating Code...
+         Skipping... (no relevant changes detected)
+         Renderer.cpp
+         ROAMTerrain.cpp
+         ObjectTest.cpp
+         MouseHandler.cpp
+         Main.cpp
+         LandscapeManager.cpp
+         KeyHandler.cpp
+       Link:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Sharanskumar\documents\visual studio 2013\Projects\TerrainGenerator\Debug\TerrainGenerator.exe" /INCREMENTAL /NOLOGO SDL2.lib SDL2main.lib opengl32.lib glew32.lib libnoise.lib SOIL.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Sharanskumar\documents\visual studio 2013\Projects\TerrainGenerator\Debug\TerrainGenerator.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Sharanskumar\documents\visual studio 2013\Projects\TerrainGenerator\Debug\TerrainGenerator.lib" /MACHINE:X86 Debug\BTT.obj
          Debug\Camera.obj
          Debug\Globals.obj
@@ -14,7 +26,6 @@
          Debug\ROAMTerrain.obj
          Debug\ObjectTest.obj
          Debug\Utils.obj
-     1>MSVCRTD.lib(cinitexe.obj) : warning LNK4098: defaultlib 'msvcrt.lib' conflicts with use of other libs; use /NODEFAULTLIB:library
          TerrainGenerator.vcxproj -> C:\Users\Sharanskumar\documents\visual studio 2013\Projects\TerrainGenerator\Debug\TerrainGenerator.exe
        PostBuildEvent:
          copy "C:\Users\Sharanskumar\documents\visual studio 2013\Projects\TerrainGenerator\SDL2-2.0.3\lib\x86\SDL2.dll" "C:\Users\Sharanskumar\documents\visual studio 2013\Projects\TerrainGenerator\Debug\"
@@ -30,4 +41,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:00.51
+Time Elapsed 00:00:00.82

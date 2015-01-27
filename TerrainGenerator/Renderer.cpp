@@ -4,10 +4,13 @@
 #include <SDL.h>
 
 Renderer::Renderer() {
+    omp_init_lock(&_lock);
 }
 
 void Renderer::add_object(Object& object) {
+    omp_set_lock(&_lock);
     _render_objects[object.get_vao()] = object;
+    omp_unset_lock(&_lock);
 }
 
 void Renderer::update_view_uniforms(std::string view_uni_name, glm::mat4& view) {
@@ -21,15 +24,16 @@ int Renderer::get_num_objects() {
 }
 
 void Renderer::render(SDL_Window* window) {
+    omp_set_lock(&_lock);
     glClearColor(0.5, 0.5, 0.5, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    Globals::landscape_manager.update_landscape();
-
     for (std::map<GLuint, Object>::iterator iter = _render_objects.begin(); iter != _render_objects.end(); ++iter) {
         Object& obj = iter->second;
+        if (obj.get_num_vertices() > 10000) {
+            int i = 0;
+        }
         obj.render();
     }
-
     SDL_GL_SwapWindow(window);
+    omp_unset_lock(&_lock);
 }

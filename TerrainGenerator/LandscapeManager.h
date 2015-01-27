@@ -10,6 +10,8 @@ public:
     ~LandscapeManager();
     /* Creates a landscape and add it to the global renderer. */
     void create_landscape();
+    /* Returns the landscape object which can be added to the render list. */
+    Object get_landscape();
     /* Updates landscape for the current frame. Must call create_landscape() first. */
     void update_landscape();
 

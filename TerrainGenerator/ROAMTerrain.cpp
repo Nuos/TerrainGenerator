@@ -6,15 +6,6 @@
 #include <gtc/matrix_transform.hpp>
 #include <iostream>
 
-/* Allow timing info to be printed to the standard output. */
-static bool clock_debug = true;
-/* Used to keep track of how long it took to construct a full BTT. */
-static std::clock_t start_time_construct;
-/* Used to keep track of how long it took to destroy '_tree'. */
-static std::clock_t start_time_delete;
-/* Determines whether or not to use hints when inserting into split set. */
-static bool use_hints = false;
-
 ROAMTerrain::ROAMTerrain(glm::vec3 lowest_extent, glm::vec3 highest_extent) {
     _lowest_extent = lowest_extent;
     _highest_extent = highest_extent;
@@ -22,20 +13,48 @@ ROAMTerrain::ROAMTerrain(glm::vec3 lowest_extent, glm::vec3 highest_extent) {
     _length = _lowest_extent.z - _highest_extent.z;
     _var_threshold = 0.0005f;    //determines terrain "accuracy"
     _max_split_iter = 100;       //max number of times to loop in begin_split()
-    _max_triangles = 40000;      //max number of triangles to have in terrain
+    _max_triangles = 30000;      //max number of triangles to have in terrain
     _num_allocations = 0;        //help guard against memory leaks; should be 0 afer delete_tree() is called
     _last_camera_pos = Globals::camera.get_pos();  //viewer position when '_tree' was last constructed
-    _tree_regen_dist = 50.0f;    //How far we can move before _tree needs to be recreated
+    _tree_regen_dist = 50.0f;    //how far we can move before _tree needs to be recreated
     _first_frame = true;         //true only the first frame, when '_tree' is first constructed
-    _tex_repeat_factor = 128.0f; //determines how often texture should repeat on landscape
+    _tex_repeat_factor = 16.0f;  //determines how often texture should repeat on landscape
+    _obj_changed = true;
 
     /* Create the initial terrain. */
     calc();
-
-    _first_frame = false;
 }
 
 Object ROAMTerrain::get_object() {
+    /* Initialize _obj for first time if needed. */
+    if (_first_frame) {
+        GLuint shaders[2];
+        shaders[0] = Utils::create_shader("shaders/roamterrain.vert", GL_VERTEX_SHADER);
+        shaders[1] = Utils::create_shader("shaders/roamterrain.frag", GL_FRAGMENT_SHADER);
+        assert(shaders[0] > 0 && shaders[1] > 0);
+        GLuint program = Utils::create_program(shaders, 2);
+        assert(program > 0);
+        _obj.set_program(program);
+        glm::mat4 model = glm::mat4();
+        glm::mat4 view = glm::mat4();
+        glm::mat4 projection = glm::perspective(45.0, 1.0, 0.1, 5000.0);
+        _obj.set_model_matrix_uniform("model", model);
+        _obj.set_view_matrix_uniform("view", view);
+        _obj.set_projection_matrix_uniform("projection", projection);
+        _obj.set_texture(0, "textures/grass.jpg", "tex0");
+        _obj.set_texture(1, "textures/dirt.jpg", "tex1");
+        _obj.set_texture(2, "textures/rock.jpg", "tex2");
+
+        _first_frame = false;
+    }
+    /* Set vertices, texcoords, and normals if needed. */
+    if (_obj_changed) {
+        _obj.set_vertices(_verts, GL_STREAM_DRAW);
+        _obj.set_texcoords(_texcoords, GL_STREAM_DRAW);
+        _obj.set_normals(_normals, GL_STREAM_DRAW);
+        _obj_changed = false;
+    }
+
     return _obj;
 }
 
@@ -51,25 +70,11 @@ void ROAMTerrain::calc() {
     _last_camera_pos = Globals::camera.get_pos();
 
     /* Destroy the old bintree.  */
-    if (clock_debug) {
-        std::cout << "Deleting old tree..." << std::endl;
-        start_time_delete = std::clock();
-    }
     delete_tree(_tree);
-    if (clock_debug) {
-        std::cout << "Old tree took " << (std::clock() - start_time_delete) / (double)CLOCKS_PER_SEC
-            << " seconds to delete." << std::endl;
-    }
     assert(_num_allocations == 0);
 
     /* Clear old split set. */
     _split_set.clear();
-
-    /* Begin the clock for tree construction. */
-    if (clock_debug) {
-        std::cout << "Constructing new tree..." << std::endl;
-        start_time_construct = std::clock();
-    }
 
     /* Create new tree. */
     _tree = alloc_BTTNode();
@@ -82,7 +87,7 @@ void ROAMTerrain::calc() {
     _tree->baseneighbor = NULL;
     _tree->leftchild = alloc_BTTNode();
     _tree->rightchild = alloc_BTTNode();
-    /* Initialize the left child of the parent. The apex of this triangle '_lowest_extent'. */
+    /* Initialize the left child of the parent. The apex of this triangle is '_lowest_extent'. */
     _tree->leftchild->val = alloc_BTTVal();
     _tree->leftchild->val->a = _lowest_extent;
     _tree->leftchild->val->a.y = Utils::get_value(_tree->leftchild->val->a.x, 0, _tree->leftchild->val->a.z);
@@ -118,21 +123,13 @@ void ROAMTerrain::calc() {
     /* Beginning splitting. For the first frame, we immediately initialize the object. */
     begin_split();
     if (_first_frame) {
-        init_object();
+        init_object_data();
     }
 }
 
 ROAMTerrain::~ROAMTerrain() {
     /* Delete all memory allocated for '_tree'. */
-    if (clock_debug) {
-        std::cout << "Deleting old tree..." << std::endl;
-        start_time_delete = std::clock();
-    }
     delete_tree(_tree);
-    if (clock_debug) {
-        std::cout << "Old tree took " << (std::clock() - start_time_delete) / (double)CLOCKS_PER_SEC
-            << " seconds to delete." << std::endl;
-    }
     assert(_num_allocations == 0);
 }
 
@@ -172,12 +169,7 @@ void ROAMTerrain::begin_split() {
 
     /* Update object if we performed a split and there are enough vertices. */
     if (_split_set.size() != old_size && _split_set.size() >= _max_triangles / 3) {
-        init_object();
-        /* Print how long it took to construct the full BTT. */
-        if (clock_debug) {
-            std::cout << "New tree took " << (std::clock() - start_time_construct) / (double)CLOCKS_PER_SEC 
-                << " seconds to create." << std::endl;
-        }
+        init_object_data();
     }
 }
 
@@ -198,34 +190,14 @@ void ROAMTerrain::delete_tree(BTTNode* node) {
     node = NULL;
 }
 
-/* Initialize _obj for use. */
-void ROAMTerrain::init_object() {
-    /* Peform first-time initialization of '_obj' for the first frame. */
-    if (_first_frame) {
-        GLuint shaders[2];
-        shaders[0] = Utils::create_shader("shaders/roamterrain.vert", GL_VERTEX_SHADER);
-        shaders[1] = Utils::create_shader("shaders/roamterrain.frag", GL_FRAGMENT_SHADER);
-        assert(shaders[0] > 0 && shaders[1] > 0);
-        GLuint program = Utils::create_program(shaders, 2);
-        assert(program > 0);
-        _obj.set_program(program);
-        glm::mat4 model = glm::mat4();
-        glm::mat4 view = glm::mat4();
-        glm::mat4 projection = glm::perspective(45.0, 1.0, 0.1, 1000.0);
-        _obj.set_model_matrix_uniform("model", model);
-        _obj.set_view_matrix_uniform("view", view);
-        _obj.set_projection_matrix_uniform("projection", projection);
-        _obj.set_texture(0, "textures/grass.jpg", "tex0");
-        _obj.set_texture(1, "textures/dirt.jpg", "tex1");
-        _obj.set_texture(2, "textures/rock.jpg", "tex2");
-    }
-
-    /* Clear the object's old vertices, texcoords, normals. */
+/* Initialize data for _obj. */
+void ROAMTerrain::init_object_data() {
+    /* Clear old vertices, texcoords, and normals. */
     _verts.clear();
     _texcoords.clear();
     _normals.clear();
 
-    /* Initialize the object with the new vertices, texcoords, normals. The split set always contains the
+    /* Create the new vertices, texcoords, normals. The split set always contains the
     root triangles of the BTT, so we simply iterate over it to get the triangles. */
     for (std::multiset<BTTNode*, BTTNodeComp>::iterator iter = _split_set.begin(); iter != _split_set.end(); ++iter) {
         BTTNode* node = *iter;
@@ -260,9 +232,9 @@ void ROAMTerrain::init_object() {
             _normals.push_back(normal.z);
         }
     }
-    _obj.set_vertices(_verts, GL_STREAM_DRAW);
-    _obj.set_texcoords(_texcoords, GL_STREAM_DRAW);
-    _obj.set_normals(_normals, GL_STREAM_DRAW);
+
+    /* Indicate that the data for _obj has changed. */
+    _obj_changed = true;
 }
 
 /* Returns iterator to 'node' in the split set, or _split_set.end() if it cannot be found. */
@@ -290,25 +262,14 @@ void ROAMTerrain::split(BTTNode* node) {
         node->rightchild->leftneighbor = node->baseneighbor->leftchild;
         node->baseneighbor->leftchild->rightneighbor = node->rightchild;
         node->baseneighbor->rightchild->leftneighbor = node->leftchild;
-        
         /* Add the newly created triangles to the split set. */
-        std::multiset<BTTNode*>::iterator node_iter = find_node(node);
-        std::multiset<BTTNode*>::iterator nodebase_iter = find_node(node->baseneighbor);
-        if (use_hints) {
-            _split_set.insert(node_iter, node->leftchild);
-            _split_set.insert(node_iter, node->rightchild);
-            _split_set.insert(nodebase_iter, node->baseneighbor->leftchild);
-            _split_set.insert(nodebase_iter, node->baseneighbor->rightchild);
-        }
-        else {
-            _split_set.insert(node->leftchild);
-            _split_set.insert(node->rightchild);
-            _split_set.insert(node->baseneighbor->leftchild);
-            _split_set.insert(node->baseneighbor->rightchild);
-        }
+        _split_set.insert(node->leftchild);
+        _split_set.insert(node->rightchild);
+        _split_set.insert(node->baseneighbor->leftchild);
+        _split_set.insert(node->baseneighbor->rightchild);
         /* Remove 'node' and its base neighbor from the split set. */
-        _split_set.erase(node_iter);
-        _split_set.erase(nodebase_iter);
+        _split_set.erase(find_node(node));
+        _split_set.erase(find_node(node->baseneighbor));
         return;
     }
     /* If 'node' has no base neighbor, then we just split 'node'. */
@@ -316,17 +277,10 @@ void ROAMTerrain::split(BTTNode* node) {
     node->leftchild->rightneighbor = NULL;
     node->rightchild->leftneighbor = NULL;
     /* Add the newly created triangles to the split set. */
-    std::multiset<BTTNode*>::iterator node_iter = find_node(node);
-    if (use_hints) {
-        _split_set.insert(node_iter, node->leftchild);
-        _split_set.insert(node_iter, node->rightchild);
-    }
-    else {
-        _split_set.insert(node->leftchild);
-        _split_set.insert(node->rightchild);
-    }
+    _split_set.insert(node->leftchild);
+    _split_set.insert(node->rightchild);
     /* Remove 'node' from the split set. */
-    _split_set.erase(node_iter);
+    _split_set.erase(find_node(node));
 }
 
 /* Performs the actual splitting of the triangle represented by 'node'. Adapted from psuedocode

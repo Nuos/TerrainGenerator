@@ -6,6 +6,7 @@
 #include "Utils.h"
 #include <glew.h>
 #include <iostream>
+#include <omp.h>
 #include <SDL.h>
 
 const char* window_title = "TerrainGenerator";
@@ -51,28 +52,39 @@ int main(int argc, char** argv) {
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
 
-    /* Create objects */
+    /* Create objects and add to render list. */
     Globals::landscape_manager.create_landscape();
+    Globals::renderer.add_object(Globals::landscape_manager.get_landscape());
 
     /* Initialize mouse position and hide the cursor */
     SDL_WarpMouseInWindow(window, window_width / 2, window_height / 2);
     SDL_ShowCursor(0);
     
-    /* Main loop */
+    /* Main loop. One thread handles the main loop logic while the other thread focuses on
+    updating the landscape. */
     SDL_Event event;
-    while (Globals::program_running) {
-        while (SDL_PollEvent(&event)) {
-            switch (event.type) {
-            case SDL_KEYDOWN:
-                KeyHandler::handlekey(event.key.keysym.sym);
-                break;
-            default:
-                continue;
+    #pragma omp parallel num_threads(2)
+    {
+        while (Globals::program_running) {
+            if (omp_get_thread_num() > 0) {
+                Globals::landscape_manager.update_landscape();
+            }
+            else {
+                while (SDL_PollEvent(&event)) {
+                    switch (event.type) {
+                    case SDL_KEYDOWN:
+                        KeyHandler::handlekey(event.key.keysym.sym);
+                        break;
+                    default:
+                        continue;
+                    }
+                }
+                MouseHandler::handlemouse(window, window_width, window_height);
+                KeyHandler::handlekey_cont();
+                Globals::renderer.add_object(Globals::landscape_manager.get_landscape());
+                Globals::renderer.render(window);
             }
         }
-        MouseHandler::handlemouse(window, window_width, window_height);
-        KeyHandler::handlekey_cont();
-        Globals::renderer.render(window);
     }
 
     /* Clean up and return */

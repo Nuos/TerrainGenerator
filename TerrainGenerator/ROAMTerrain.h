@@ -16,7 +16,8 @@ class ROAMTerrain {
 public:
     /* Creates terrain that spans from 'lowest_extent' to 'highest_extent'. */
     ROAMTerrain(glm::vec3 lowest_extent, glm::vec3 highest_extent);
-    /* Returns a fully created Object associated with this ROAMTerrain. */
+    /* Returns a fully created Object associated with this ROAMTerrain. Must be called by
+    the main thread associated with the OpenGL context.*/
     Object get_object();
     /* Recalculate the data for this terrain for the current frame. */
     void calc();
@@ -27,7 +28,7 @@ private:
     BTTVal* alloc_BTTVal();
     void begin_split();
     void delete_tree(BTTNode* node);
-    void init_object();
+    void init_object_data();
     std::multiset<BTTNode*>::iterator find_node(BTTNode* node);
     void split(BTTNode* node);
     void split2(BTTNode* node);
@@ -51,6 +52,7 @@ private:
     float _tree_regen_dist; //How far we can move before _tree needs to be recreated
     bool _first_frame; //True only when this terrain is first created
     float _tex_repeat_factor; //Modifies how often a texture repeats across the terrain
+    bool _obj_changed; //True iff the object has been modified since the last time get_object() was called
 };
 
 #endif

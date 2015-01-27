@@ -14,7 +14,10 @@ LandscapeManager::~LandscapeManager() {
 
 void LandscapeManager::create_landscape() {
     _terrain = new ROAMTerrain(glm::vec3(0, 0, 0), glm::vec3(_length, 0, _length));
-    Globals::renderer.add_object(_terrain->get_object());
+}
+
+Object LandscapeManager::get_landscape() {
+    return _terrain->get_object();
 }
 
 void LandscapeManager::update_landscape() {
@@ -22,5 +25,4 @@ void LandscapeManager::update_landscape() {
         return;
     }
     _terrain->calc();
-    Globals::renderer.add_object(_terrain->get_object());
 }
