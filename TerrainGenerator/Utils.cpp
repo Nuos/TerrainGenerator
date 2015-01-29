@@ -85,8 +85,8 @@ void Utils::print_GLerrors() {
 }
 
 float Utils::get_value(float x, float y, float z) {
-    const float factor = 1024.0f;
-    const float amplitude = 120.0f;
-    const float rand = 5.0f;
+    const float factor = 2048.0f;
+    const float amplitude = 165.0f;
+    const float rand = 6.0f;
     return mod.GetValue((float)x / factor, rand, (float)z / factor) * amplitude;
 }

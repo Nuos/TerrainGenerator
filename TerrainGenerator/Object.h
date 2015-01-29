@@ -11,6 +11,9 @@
     To create an Object, first create a new object:
         Object obj;
 
+    Create the VAO for the Object:
+        obj.create_vao();
+
     Then specify the vertices, texcoords, and normals for the Object:
         obj.set_vertices(vertices, GL_STATIC_DRAW);
         obj.set_texcoords(texcoords, GL_STATIC_DRAW);
@@ -41,6 +44,9 @@ class Object {
 public:
     /* Creates a fresh Object. */
     Object();
+
+    /* Create the VAO for the object. */
+    void create_vao();
 
     /* Set vertices to 'vertices' (3 floats per vertex). 'usage' will be used as last arg to glBufferData(). */
     void set_vertices(const std::vector<float>& vertices, GLenum usage);

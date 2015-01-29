@@ -16,7 +16,7 @@ out vec3 f_norm;
 
 void main() {
     gl_Position = projection * view * model * vec4(v_pos, 1.0);
-    f_pos = v_pos;
+    f_pos = vec3(view * model * vec4(v_pos, 1)); //test code
     f_tex = v_tex;
     f_norm = v_norm;
 }

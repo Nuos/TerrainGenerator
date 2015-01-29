@@ -19,6 +19,8 @@ public:
     /* Returns a fully created Object associated with this ROAMTerrain. Must be called by
     the main thread associated with the OpenGL context.*/
     Object get_object();
+    /* Return this terrain's vao id. */
+    int get_object_vao();
     /* Recalculate the data for this terrain for the current frame. */
     void calc();
     /* Free all memory used by this terrain. */

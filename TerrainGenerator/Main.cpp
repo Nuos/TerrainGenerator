@@ -22,8 +22,8 @@ int main(int argc, char** argv) {
         fprintf(stderr, "SDL_Init() failed: %s", SDL_GetError());
         return -1;
     }
-    /* Create a window with SDL (double buffered w/ OpenGL 4.3 compatability) */
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+    /* Create a window with SDL (double buffered w/ OpenGL 3.3 compatability) */
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_Window* window = SDL_CreateWindow(window_title, window_x, window_y,
@@ -54,7 +54,7 @@ int main(int argc, char** argv) {
 
     /* Create objects and add to render list. */
     Globals::landscape_manager.create_landscape();
-    Globals::renderer.add_object(Globals::landscape_manager.get_landscape());
+    Globals::landscape_manager.update_in_render_list(); //add landscape to render list
 
     /* Initialize mouse position and hide the cursor */
     SDL_WarpMouseInWindow(window, window_width / 2, window_height / 2);
@@ -66,9 +66,11 @@ int main(int argc, char** argv) {
     #pragma omp parallel num_threads(2)
     {
         while (Globals::program_running) {
+            /* One thread focuses on updating landscape only. */
             if (omp_get_thread_num() > 0) {
                 Globals::landscape_manager.update_landscape();
             }
+            /* The other thread handles the rest of the main loop logic. */
             else {
                 while (SDL_PollEvent(&event)) {
                     switch (event.type) {
@@ -81,7 +83,7 @@ int main(int argc, char** argv) {
                 }
                 MouseHandler::handlemouse(window, window_width, window_height);
                 KeyHandler::handlekey_cont();
-                Globals::renderer.add_object(Globals::landscape_manager.get_landscape());
+                Globals::landscape_manager.update_in_render_list(); //update landscape in render list
                 Globals::renderer.render(window);
             }
         }

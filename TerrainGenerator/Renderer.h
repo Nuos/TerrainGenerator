@@ -16,15 +16,18 @@ public:
     that object is simply updated. */
     void add_object(Object& object);
 
-    /* Update the view matrices of all objects in the rendering list. All objects
-    must name their view matrix uniform 'view_uni_name'. */
-    void update_view_uniforms(std::string view_uni_name, glm::mat4& view);
+    /* Eliminate all objects from rendering list. */
+    void clear();
 
     /* Returns number of objects to render. */
     int get_num_objects();
 
     /* Render all objects in rendering list. */
     void render(SDL_Window* window);
+
+    /* Update the view matrices of all objects in the rendering list. All objects
+    must name their view matrix uniform 'view_uni_name'. */
+    void update_view_uniforms(std::string view_uni_name, glm::mat4& view);
 
 private:
     std::map<GLuint, Object> _render_objects; //Objects to render. Maps from VAO number to Object.

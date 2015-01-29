@@ -4,8 +4,8 @@
 #include <gtc/matrix_transform.hpp>
 #include <iostream>
 
-float pitch = 0.0f;
-float yaw = -90.0f;
+float _pitch = 0.0f;
+float _yaw = -90.0f;
 
 void MouseHandler::handlemouse(SDL_Window* window, int window_width, int window_height) {
     /* Get current mouse position. */
@@ -17,17 +17,17 @@ void MouseHandler::handlemouse(SDL_Window* window, int window_width, int window_
     /* Calculate new yaw and pitch */
     float delta_x = x - (window_width / 2.0f);
     float delta_y = (window_height / 2.0f) - y;
-    yaw += (delta_x * Globals::mouse_sensitivity);
-    pitch += (delta_y * Globals::mouse_sensitivity);
+    _yaw += (delta_x * Globals::mouse_sensitivity);
+    _pitch += (delta_y * Globals::mouse_sensitivity);
     /* Clamp pitch to range [-89.5, 89.5] to prevent moving upside down */
-    if (pitch > 89.5f) pitch = 89.5f;
-    else if (pitch < -89.5f) pitch = -89.f;
+    if (_pitch > 89.5f) _pitch = 89.5f;
+    else if (_pitch < -89.5f) _pitch = -89.f;
 
     /* Update camera direction (up vector can stay parallel to world y-axis) */
     glm::vec3 direction = Globals::camera.get_dir();
-    direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-    direction.y = sin(glm::radians(pitch));
-    direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    direction.x = cos(glm::radians(_yaw)) * cos(glm::radians(_pitch));
+    direction.y = sin(glm::radians(_pitch));
+    direction.z = sin(glm::radians(_yaw)) * cos(glm::radians(_pitch));
     direction = glm::normalize(direction);
     Globals::camera.set_dir(direction);
 

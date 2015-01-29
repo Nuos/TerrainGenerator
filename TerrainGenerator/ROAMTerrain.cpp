@@ -7,13 +7,14 @@
 #include <iostream>
 
 ROAMTerrain::ROAMTerrain(glm::vec3 lowest_extent, glm::vec3 highest_extent) {
+    _tree = NULL;
     _lowest_extent = lowest_extent;
     _highest_extent = highest_extent;
     _width = _highest_extent.x - _lowest_extent.x;
     _length = _lowest_extent.z - _highest_extent.z;
     _var_threshold = 0.0005f;    //determines terrain "accuracy"
     _max_split_iter = 100;       //max number of times to loop in begin_split()
-    _max_triangles = 30000;      //max number of triangles to have in terrain
+    _max_triangles = 3000;       //max number of triangles to have in terrain
     _num_allocations = 0;        //help guard against memory leaks; should be 0 afer delete_tree() is called
     _last_camera_pos = Globals::camera.get_pos();  //viewer position when '_tree' was last constructed
     _tree_regen_dist = 50.0f;    //how far we can move before _tree needs to be recreated
@@ -28,6 +29,7 @@ ROAMTerrain::ROAMTerrain(glm::vec3 lowest_extent, glm::vec3 highest_extent) {
 Object ROAMTerrain::get_object() {
     /* Initialize _obj for first time if needed. */
     if (_first_frame) {
+        _obj.create_vao();
         GLuint shaders[2];
         shaders[0] = Utils::create_shader("shaders/roamterrain.vert", GL_VERTEX_SHADER);
         shaders[1] = Utils::create_shader("shaders/roamterrain.frag", GL_FRAGMENT_SHADER);
@@ -56,6 +58,10 @@ Object ROAMTerrain::get_object() {
     }
 
     return _obj;
+}
+
+int ROAMTerrain::get_object_vao() {
+    return _obj.get_vao();
 }
 
 void ROAMTerrain::calc() {

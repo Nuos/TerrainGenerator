@@ -11,6 +11,10 @@ Object::Object() {
     _use_indices = false;
 }
 
+void Object::create_vao() {
+    glGenVertexArrays(1, &_vao);
+}
+
 void Object::set_vertices(const std::vector<float>& vertices, GLenum usage) {
     _num_vertices = vertices.size();
     std::cout << "Number of triangles: " << _num_vertices / 3 << std::endl;
