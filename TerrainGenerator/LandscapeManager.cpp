@@ -29,7 +29,7 @@ LandscapeManager::LandscapeManager() {
     for (int i = 0; i < 9; i++) {
         _terrain[i] = NULL;
     }
-    _length = 1000.0f;
+    _length = 1500.0f;
     _last_x = 0; //center chunk has lowest_extent.x = 0
     _last_z = 0; //center chunk has lowest_extent.z = 0
     _num_allocations = 0;
@@ -80,6 +80,7 @@ void LandscapeManager::update_landscape() {
 
     /* Moved into western chunk */
     if (x < _last_x) {
+        std::cout << "moving into western chunk" << std::endl;
         moved_west = true;
         temp[0] = _terrain[7];
         temp[1] = _terrain[8];
@@ -90,9 +91,13 @@ void LandscapeManager::update_landscape() {
         temp[6] = new ROAMTerrain(glm::vec3(x - _length, 0, z + _length), glm::vec3(x, 0, z));
         temp[7] = new ROAMTerrain(glm::vec3(x - _length, 0, z), glm::vec3(x, 0, z - _length));
         temp[8] = new ROAMTerrain(glm::vec3(x - _length, 0, z - _length), glm::vec3(x, 0, z - (2 * _length)));
+        temp[6]->calc();
+        temp[7]->calc();
+        temp[8]->calc();
     }
     /* Moved into northern chunk */
     else if (z < _last_z) {
+        std::cout << "moving into northern chunk" << std::endl;
         moved_north = true;
         temp[0] = _terrain[1];
         temp[1] = new ROAMTerrain(glm::vec3(x, 0, z - _length), glm::vec3(x + _length, 0, z - (2 * _length)));
@@ -106,6 +111,7 @@ void LandscapeManager::update_landscape() {
     }
     /* Moved into eastern chunk */
     else if (x > _last_x) {
+        std::cout << "moving into eastern chunk" << std::endl;
         moved_east = true;
         temp[0] = _terrain[3];
         temp[1] = _terrain[2];
@@ -119,6 +125,7 @@ void LandscapeManager::update_landscape() {
     }
     /* Moved into southern chunk */
     else if (z > _last_z) {
+        std::cout << "moving into southern chunk" << std::endl;
         moved_south = true;
         temp[0] = _terrain[5];
         temp[1] = _terrain[0];
@@ -163,6 +170,7 @@ void LandscapeManager::update_landscape() {
     }
     omp_unset_lock(&_lock);
     /* Perform the terrain update for the current frame. */
+    #pragma omp parallel for num_threads(3)
     for (int i = 0; i < 9; i++) {
         _terrain[i]->calc();
     }

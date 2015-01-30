@@ -4,7 +4,6 @@
 #include <SOIL.h>
 
 Object::Object() {
-    glGenVertexArrays(1, &_vao);
     _draw_mode = GL_TRIANGLES;
     _num_vertices = 0;
     _num_indices = 0;

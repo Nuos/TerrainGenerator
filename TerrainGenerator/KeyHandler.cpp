@@ -4,7 +4,7 @@
 #include <glm.hpp>
 
 bool _walk_mode = true; //True if user walks on landscape
-float _walk_height = 10.0f; //If '_walk_mode' is true, determines how high off landscape the user is
+float _walk_height = 30.0f; //If '_walk_mode' is true, determines how high off landscape the user is
 bool _wireframe_enabled = false; //True if wireframe enabled
 const Uint8* _keystate = SDL_GetKeyboardState(NULL);
 

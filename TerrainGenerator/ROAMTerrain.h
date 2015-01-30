@@ -14,13 +14,13 @@ comparison function is provided (this implementation uses the BTTNodeComp class 
 BTT.h to do so). */
 class ROAMTerrain {
 public:
+    /* Prepares the ROAMTerrain class for use. Must call before any ROAMTerrains are created. */
+    static void init();
     /* Creates terrain that spans from 'lowest_extent' to 'highest_extent'. */
     ROAMTerrain(glm::vec3 lowest_extent, glm::vec3 highest_extent);
     /* Returns a fully created Object associated with this ROAMTerrain. Must be called by
     the main thread associated with the OpenGL context.*/
     Object get_object();
-    /* Return this terrain's vao id. */
-    int get_object_vao();
     /* Recalculate the data for this terrain for the current frame. */
     void calc();
     /* Free all memory used by this terrain. */
@@ -36,6 +36,7 @@ private:
     void split2(BTTNode* node);
     static float get_priority(BTTNode* node);
 
+    static Object _static_obj; //Template object
     BTTNode* _tree; //Root of the BTT which does not represent any triangle
     Object _obj;
     std::vector<float> _verts;
@@ -47,8 +48,8 @@ private:
     float _width;
     float _length;
     float _var_threshold; //Determines "accuracy" of the mesh
-    int _max_split_iter;  //Maximum number of iterations allowed in begin_split()
-    int _max_triangles;   //Loose upper bound on number of triangles allowed
+    int _max_split_iter; //Maximum number of iterations allowed in begin_split()
+    int _max_triangles; //Loose upper bound on number of triangles allowed
     int _num_allocations; //Should be 0 after delete_tree() is called
     glm::vec3 _last_camera_pos; //Position of the camera the last time the BTT was constructed
     float _tree_regen_dist; //How far we can move before _tree needs to be recreated

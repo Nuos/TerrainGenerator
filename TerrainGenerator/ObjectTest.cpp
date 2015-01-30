@@ -26,6 +26,7 @@ bool ObjectTest::gen_triangle(bool use_indices) {
     std::vector<float> n = { 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f };
     std::vector<GLuint> i = { 0, 1, 2 };
 
+    simple.create_vao();
     simple.set_vertices(v, GL_STATIC_DRAW);
     simple.set_texcoords(t, GL_STATIC_DRAW);
     simple.set_normals(n, GL_STATIC_DRAW);
@@ -59,6 +60,7 @@ bool ObjectTest::use_matrices() {
     std::vector<float> t = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
     std::vector<float> n = { 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f };
 
+    obj.create_vao();
     obj.set_vertices(v, GL_STATIC_DRAW);
     obj.set_texcoords(t, GL_STATIC_DRAW);
     obj.set_normals(n, GL_STATIC_DRAW);
@@ -104,6 +106,7 @@ bool ObjectTest::use_indices_and_matrices(bool use_triangle_fan) {
         i = { 0, 1, 2, 0, 2, 3 };  //2 triangles using GL_TRAINGLES draw mode
     }
 
+    obj.create_vao();
     obj.set_vertices(v, GL_STATIC_DRAW);
     obj.set_texcoords(t, GL_STATIC_DRAW);
     obj.set_normals(n, GL_STATIC_DRAW);
@@ -144,6 +147,7 @@ bool ObjectTest::grid_terrain() {
     GridTerrain gt(50, 0.5, 1.0);  //length is (50-1)*0.5 = 24.5
     Object obj = gt.get_object();
 
+    obj.create_vao();
     obj.set_program(program);
 
     glm::mat4 model = glm::mat4();

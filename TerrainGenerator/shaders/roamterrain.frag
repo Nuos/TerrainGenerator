@@ -28,10 +28,10 @@ void main() {
     }
 
     //code from OpenGL 4.0 Shading Language Cookbook
-    float dist = abs(f_pos.z);
+    /*float dist = abs(f_pos.z);
     float fogfactor = (2500.0 - dist) / (2500.0 - 0.0);
     fogfactor = clamp(fogfactor, 0, 1);
-    color = mix(vec4(0.5, 0.5, 0.5, 1), color, fogfactor);
+    color = mix(vec4(0.5, 0.5, 0.5, 1), color, fogfactor);*/
 
     //color = vec4(f_norm, color.y);
 }

@@ -52,6 +52,12 @@ int main(int argc, char** argv) {
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
 
+    /* Allow nested parallelism with OpenMP. */
+    omp_set_nested(1);
+
+    /* Call init methods for classes that require them. */
+    ROAMTerrain::init();
+
     /* Create objects and add to render list. */
     Globals::landscape_manager.create_landscape();
     Globals::landscape_manager.update_in_render_list(); //add landscape to render list
