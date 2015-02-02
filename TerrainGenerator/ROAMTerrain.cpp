@@ -12,11 +12,12 @@ Object ROAMTerrain::_static_obj;
 
 void ROAMTerrain::init() {
     /* Initialize the static 'template' object. */
-    GLuint shaders[2];
+    GLuint shaders[3];
     shaders[0] = Utils::create_shader("shaders/roamterrain.vert", GL_VERTEX_SHADER);
-    shaders[1] = Utils::create_shader("shaders/roamterrain.frag", GL_FRAGMENT_SHADER);
-    assert(shaders[0] > 0 && shaders[1] > 0);
-    GLuint program = Utils::create_program(shaders, 2);
+    shaders[1] = Utils::create_shader("shaders/roamterrain.geo", GL_GEOMETRY_SHADER);
+    shaders[2] = Utils::create_shader("shaders/roamterrain.frag", GL_FRAGMENT_SHADER);
+    assert(shaders[0] > 0 && shaders[1] > 0 && shaders[2] > 0);
+    GLuint program = Utils::create_program(shaders, 3);
     assert(program > 0);
     _static_obj.create_vao();
     _static_obj.set_program(program);
@@ -29,6 +30,7 @@ void ROAMTerrain::init() {
     _static_obj.set_texture(0, "textures/grass1.jpg", "tex0");
     _static_obj.set_texture(1, "textures/dirt.jpg", "tex1");
     _static_obj.set_texture(2, "textures/rock.jpg", "tex2");
+    _static_obj.set_texture(3, "textures/grass_tall_clump.png", "tex3");
 }
 
 ROAMTerrain::ROAMTerrain(glm::vec3 lowest_extent, glm::vec3 highest_extent) {
@@ -40,12 +42,12 @@ ROAMTerrain::ROAMTerrain(glm::vec3 lowest_extent, glm::vec3 highest_extent) {
     _length = _lowest_extent.z - _highest_extent.z;
     _var_threshold = 0.0005f;    //determines terrain "accuracy"
     _max_split_iter = 100;       //max number of times to loop in begin_split()
-    _max_triangles = 2500;       //max number of triangles to have in terrain
+    _max_triangles = 7500;       //max number of triangles to have in terrain
     _num_allocations = 0;        //help guard against memory leaks; should be 0 afer delete_tree() is called
     _last_camera_pos = Globals::camera.get_pos();  //viewer position when '_tree' was last constructed
-    _tree_regen_dist = 50.0f;    //how far we can move before _tree needs to be recreated
-    _first_frame = true;         //true only the first frame, when '_tree' is first constructed
-    _tex_repeat_factor = 8.0f;   //determines how often texture should repeat on landscape
+    _tree_regen_dist = 300.0f;    //how far we can move before _tree needs to be recreated
+    _first_frame = true;          //true only the first frame, when '_tree' is first constructed
+    _tex_repeat_factor = 8.0f;    //determines how often texture should repeat on landscape
     _obj_changed = true;
     /* Create the initial terrain. */
     calc();

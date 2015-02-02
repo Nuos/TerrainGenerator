@@ -170,7 +170,6 @@ void LandscapeManager::update_landscape() {
     }
     omp_unset_lock(&_lock);
     /* Perform the terrain update for the current frame. */
-    #pragma omp parallel for num_threads(3)
     for (int i = 0; i < 9; i++) {
         _terrain[i]->calc();
     }

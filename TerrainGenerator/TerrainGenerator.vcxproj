@@ -112,6 +112,7 @@ copy "$(SolutionDir)Simple OpenGL Image Library\lib\SOIL.lib" "$(SolutionDir)Deb
     <None Include="shaders\matrix.frag" />
     <None Include="shaders\matrix.vert" />
     <None Include="shaders\roamterrain.frag" />
+    <None Include="shaders\roamterrain.geo" />
     <None Include="shaders\roamterrain.vert" />
     <None Include="shaders\simple.frag" />
     <None Include="shaders\simple.vert" />

@@ -22,8 +22,8 @@ int main(int argc, char** argv) {
         fprintf(stderr, "SDL_Init() failed: %s", SDL_GetError());
         return -1;
     }
-    /* Create a window with SDL (double buffered w/ OpenGL 3.3 compatability) */
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    /* Create a window with SDL (double buffered w/ OpenGL 4.3 compatability) */
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_Window* window = SDL_CreateWindow(window_title, window_x, window_y,
@@ -51,6 +51,10 @@ int main(int argc, char** argv) {
     /* Enable depth buffering */
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
+
+    /* Enable blending. */
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     /* Allow nested parallelism with OpenMP. */
     omp_set_nested(1);
