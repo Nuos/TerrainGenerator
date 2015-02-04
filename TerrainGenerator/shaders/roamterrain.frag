@@ -24,7 +24,7 @@ void add_fog(inout vec4 color) {
     float dist = abs((view * model * vec4(f_pos_obj, 1)).z);
     float fogfactor = (2500.0 - dist) / (2500.0 - 250.0);
     fogfactor = clamp(fogfactor, 0, 1);
-    color = mix(vec4(0.5, 0.5, 0.5, 1), color, fogfactor);
+    color = mix(vec4(0.6, 0.6, 0.6, 1), color, fogfactor);
 }
 
 void main() {

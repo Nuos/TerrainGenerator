@@ -45,9 +45,9 @@ ROAMTerrain::ROAMTerrain(glm::vec3 lowest_extent, glm::vec3 highest_extent) {
     _max_triangles = 7500;       //max number of triangles to have in terrain
     _num_allocations = 0;        //help guard against memory leaks; should be 0 afer delete_tree() is called
     _last_camera_pos = Globals::camera.get_pos();  //viewer position when '_tree' was last constructed
-    _tree_regen_dist = 300.0f;    //how far we can move before _tree needs to be recreated
-    _first_frame = true;          //true only the first frame, when '_tree' is first constructed
-    _tex_repeat_factor = 8.0f;    //determines how often texture should repeat on landscape
+    _tree_regen_dist = 300.0f;   //how far we can move before _tree needs to be recreated
+    _first_frame = true;         //true only the first frame, when '_tree' is first constructed
+    _tex_repeat_factor = 8.0f;   //determines how often texture should repeat on landscape
     _obj_changed = true;
     /* Create the initial terrain. */
     calc();

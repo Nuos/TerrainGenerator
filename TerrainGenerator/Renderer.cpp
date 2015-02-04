@@ -25,7 +25,7 @@ int Renderer::get_num_objects() {
 
 void Renderer::render(SDL_Window* window) {
     omp_set_lock(&_lock);
-    glClearColor(0.5, 0.5, 0.5, 1);
+    glClearColor(0.6, 0.6, 0.6, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     for (std::map<GLuint, Object>::iterator iter = _render_objects.begin(); iter != _render_objects.end(); ++iter) {
         Object& obj = iter->second;

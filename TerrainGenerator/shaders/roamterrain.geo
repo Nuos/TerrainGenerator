@@ -18,17 +18,16 @@ out vec2 f_tex;
 out vec3 f_norm;
 flat out int f_is_grass;
 
-float width = 12.0f;
-float height = 15.0f;
-
 /* Canonical GLSL random function found on the web. */
 float rand(vec2 co){
-    return 2.0 * fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
 }
 
 /* Generate grass given an index 'i'. */
 void gen_grass(int i, bool flip) {
     vec3 vertex = g_pos_obj[i];
+    float width = 12.0f;
+    float height = 15.0f;
     int modifier;
     if (flip) {
         modifier = -1;
@@ -36,36 +35,28 @@ void gen_grass(int i, bool flip) {
         modifier = 1;
     }
 
-    f_pos_obj = vertex + vec3(-width + rand(vec2(g_pos_obj[i].x, g_pos_obj[i].z)),
-                               0,
-                               width * modifier + rand(vec2(g_pos_obj[i].z, g_pos_obj[i].x)));
+    f_pos_obj = vertex + vec3(-width, 0, width * modifier);
     f_tex = vec2(0, 1);
     f_norm = g_norm[i]; //FIXME
     f_is_grass = 1;
     gl_Position = projection * view * model * vec4(f_pos_obj, 1);
     EmitVertex();
 
-    f_pos_obj = vertex + vec3( width + rand(vec2(g_pos_obj[i].z, g_pos_obj[i].x)),
-                               0,
-                              -width * modifier + rand(vec2(g_pos_obj[i].x, g_pos_obj[i].z)));
+    f_pos_obj = vertex + vec3(width, 0, -width * modifier);
     f_tex = vec2(1, 1);
     f_norm = g_norm[i]; //FIXME
     f_is_grass = 1;
     gl_Position = projection * view * model * vec4(f_pos_obj, 1);
     EmitVertex();
 
-    f_pos_obj = vertex + vec3(-width + rand(vec2(g_pos_obj[i].x, g_pos_obj[i].z)),
-                               height + rand(vec2(g_pos_obj[i].z, g_pos_obj[i].z)),
-                               width * modifier  + rand(vec2(g_pos_obj[i].x, g_pos_obj[i].z)));
+    f_pos_obj = vertex + vec3(-width, height, width * modifier);
     f_tex = vec2(0, 0);
     f_norm = g_norm[i]; //FIXME
     f_is_grass = 1;
     gl_Position = projection * view * model * vec4(f_pos_obj, 1);
     EmitVertex();
 
-    f_pos_obj = vertex + vec3( width * rand(vec2(g_pos_obj[i].z, g_pos_obj[i].x)),
-                               height * rand(vec2(g_pos_obj[i].x, g_pos_obj[i].z)),
-                              -width * modifier + rand(vec2(g_pos_obj[i].z, g_pos_obj[i].x)));
+    f_pos_obj = vertex + vec3(width, height, -width * modifier);
     f_tex = vec2(1, 0);
     f_norm = g_norm[i]; //FIXME
     f_is_grass = 1;
